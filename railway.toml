@@ -2,9 +2,7 @@
 builder = "dockerfile"
 
 [deploy]
-startCommand = "/usr/bin/entrypoint.sh /usr/bin/soju -config /etc/soju/soju.conf"
-healthcheckPath = "/"
-healthcheckTimeout = 30
+# Let Dockerfile handle startup - IRC bouncer, no HTTP health check needed
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
