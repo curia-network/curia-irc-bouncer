@@ -1,0 +1,33 @@
+# Soju data directory
+logs/
+*.log
+
+# TLS certificates (use environment variables in production)
+certs/
+*.pem
+*.key
+*.crt
+
+# Database files (for SQLite development)
+*.db
+*.sqlite
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+.dockerignore
+
+# Soju specific
+soju.conf.local

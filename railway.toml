@@ -1,0 +1,23 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+startCommand = "/usr/bin/entrypoint.sh /usr/bin/soju -config /etc/soju/soju.conf"
+healthcheckPath = "/"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[env]
+NODE_ENV = "production"
+SERVICE_NAME = "curia-irc-bouncer"
+
+# These environment variables need to be set in Railway dashboard:
+# DATABASE_URL = "postgres://..." (from Railway PostgreSQL addon)
+# SOJU_ADMIN_USER = "admin"
+# SOJU_ADMIN_PASS = "your-secure-admin-password"
+# ERGO_HOST = "ergo-service-name"  # Railway internal service name
+# ERGO_PASS = "your-ergo-server-password"  # Must match ERGO_PASS in ergo service
+# SOJU_AUTH_URL = "https://curia.network/api/irc-auth"  # For production HTTP auth
+# TLS_CERT = "-----BEGIN CERTIFICATE-----..."  # Optional: provide actual cert
+# TLS_KEY = "-----BEGIN PRIVATE KEY-----..."   # Optional: provide actual key
