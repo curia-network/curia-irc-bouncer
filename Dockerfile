@@ -8,7 +8,7 @@ RUN apk add --no-cache git build-base sqlite-dev
 ENV SOJU_VERSION=v0.8.0
 
 # Download and build Soju
-RUN git clone https://git.sr.ht/~emersion/soju /src && \
+RUN git clone https://codeberg.org/emersion/soju.git /src && \
     cd /src && \
     git checkout $SOJU_VERSION && \
     go build -ldflags "-s -w" -o soju ./cmd/soju && \
