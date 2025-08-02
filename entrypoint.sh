@@ -22,7 +22,7 @@ elif [ "$SOJU_ADMIN_TCP_ENABLED" = "true" ]; then
     echo "Configuring TCP admin interface for Railway production"
     export SOJU_ADMIN_SOCKET_LISTEN=""
     export SOJU_ADMIN_TCP_LISTEN="listen admin://0.0.0.0:9999"
-    export SOJU_ADMIN_TCP_PASSWORD="admin-password ${SOJU_ADMIN_PASSWORD}"
+    export SOJU_ADMIN_TCP_PASSWORD="admin-password ${SOJU_ADMIN_PASS}"
 else
     echo "No admin interface configured"
     export SOJU_ADMIN_SOCKET_LISTEN=""
