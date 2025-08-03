@@ -60,8 +60,8 @@ COPY --from=soju-builder /src/sojuctl /usr/bin/sojuctl
 COPY --from=soju-builder /src/sojudb /usr/bin/sojudb
 
 # Copy Soju configuration files
-COPY curia-irc-bouncer/soju.conf /etc/soju/soju.conf
-COPY curia-irc-bouncer/init-user.sh /usr/bin/init-user.sh
+COPY soju.conf /etc/soju/soju.conf
+COPY init-user.sh /usr/bin/init-user.sh
 
 # Copy sidecar application
 WORKDIR /app
@@ -71,10 +71,10 @@ COPY --from=sidecar-builder /app/package.json ./
 COPY --from=sidecar-builder /app/yarn.lock ./
 
 # Create supervisord configuration
-COPY curia-irc-bouncer/supervisord.conf /etc/supervisord.conf
+COPY supervisord.conf /etc/supervisord.conf
 
 # Copy unified entrypoint
-COPY curia-irc-bouncer/entrypoint.unified.sh /usr/bin/entrypoint.sh
+COPY entrypoint.unified.sh /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/init-user.sh /usr/bin/entrypoint.sh
 
 # Expose ports (IRC + HTTP API)
