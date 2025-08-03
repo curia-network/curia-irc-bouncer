@@ -1,5 +1,6 @@
 # Unified Dockerfile for Soju IRC Bouncer + Admin Sidecar
 # This combines both Soju and the HTTP admin API in one container
+# a little line for cache busting
 
 # Stage 1: Build Soju from source
 FROM golang:1.21-alpine AS soju-builder
