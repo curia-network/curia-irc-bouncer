@@ -12,23 +12,11 @@ export ERGO_HOST=${ERGO_HOST:-"ergo"}
 export ERGO_PASS=${ERGO_PASS:-"devpass123"}
 export SOJU_MULTI_UPSTREAM_MODE=${SOJU_MULTI_UPSTREAM_MODE:-"false"}
 
-# Set admin interface configuration based on environment
-if [ "$SOJU_ADMIN_SOCKET_ENABLED" = "true" ]; then
-    echo "Configuring Unix socket admin interface for local development"
-    export SOJU_ADMIN_SOCKET_LISTEN="listen unix+admin:///var/lib/soju/admin.sock"
-    export SOJU_ADMIN_TCP_LISTEN=""
-    export SOJU_ADMIN_TCP_PASSWORD=""
-elif [ "$SOJU_ADMIN_TCP_ENABLED" = "true" ]; then
-    echo "Configuring TCP admin interface for Railway production"
-    export SOJU_ADMIN_SOCKET_LISTEN=""
-    export SOJU_ADMIN_TCP_LISTEN="listen admin://0.0.0.0:9999"
-    export SOJU_ADMIN_TCP_PASSWORD="admin-password ${SOJU_ADMIN_PASS}"
-else
-    echo "No admin interface configured"
-    export SOJU_ADMIN_SOCKET_LISTEN=""
-    export SOJU_ADMIN_TCP_LISTEN=""
-    export SOJU_ADMIN_TCP_PASSWORD=""
-fi
+# Configure Unix socket admin interface (used by sidecar in both local and production)
+echo "Configuring Unix socket admin interface for sidecar access"
+export SOJU_ADMIN_SOCKET_LISTEN="listen unix+admin:///var/lib/soju/admin.sock"
+export SOJU_ADMIN_TCP_LISTEN=""
+export SOJU_ADMIN_TCP_PASSWORD=""
 
 # Ensure directories exist
 mkdir -p /etc/soju/certs /var/lib/soju/logs
@@ -45,8 +33,6 @@ fi
 # Debug: Show admin environment variables before substitution
 echo "DEBUG - Admin environment variables:"
 echo "SOJU_ADMIN_SOCKET_LISTEN='$SOJU_ADMIN_SOCKET_LISTEN'"
-echo "SOJU_ADMIN_TCP_LISTEN='$SOJU_ADMIN_TCP_LISTEN'"
-echo "SOJU_ADMIN_TCP_PASSWORD='$SOJU_ADMIN_TCP_PASSWORD'"
 
 # Substitute environment variables in the config
 envsubst < /etc/soju/soju.conf > /tmp/soju.conf && mv /tmp/soju.conf /etc/soju/soju.conf
