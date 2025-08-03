@@ -1,6 +1,6 @@
 # Curia IRC Bouncer (Soju)
 
-Multi-user IRC bouncer with persistent message storage for the CommonGround chat system. Connects to the Ergo IRC server and provides persistent connections for multiple users and devices.
+Multi-user IRC bouncer with persistent message storage for the CommonGround chat system. Connects to the Ergo IRC server and provides persistent connections for multiple users and devices!
 
 ## Features
 
