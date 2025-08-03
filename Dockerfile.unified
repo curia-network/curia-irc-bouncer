@@ -23,15 +23,14 @@ FROM node:20-alpine AS sidecar-builder
 
 WORKDIR /app
 
-# Copy sidecar package files (from parent directory)
-COPY ../curia-irc-bouncer-sidecar/package.json ../curia-irc-bouncer-sidecar/yarn.lock ./
-COPY ../curia-irc-bouncer-sidecar/tsconfig.json ./
+# Install git to clone the sidecar repository
+RUN apk add --no-cache git
+
+# Clone the sidecar repository from GitHub
+RUN git clone https://github.com/curia-network/curia-irc-bouncer-sidecar.git .
 
 # Install dependencies and build
 RUN yarn install --production=false
-
-# Copy sidecar source code
-COPY ../curia-irc-bouncer-sidecar/src/ ./src/
 
 # Build TypeScript
 RUN yarn build

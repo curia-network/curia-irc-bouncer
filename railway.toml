@@ -1,5 +1,6 @@
 [build]
 builder = "dockerfile"
+dockerfilePath = "Dockerfile.unified"
 
 [deploy]
 # Let Dockerfile handle startup - IRC bouncer, no HTTP health check needed
