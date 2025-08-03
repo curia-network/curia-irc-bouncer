@@ -1,0 +1,88 @@
+# Unified Dockerfile for Soju IRC Bouncer + Admin Sidecar
+# This combines both Soju and the HTTP admin API in one container
+
+# Stage 1: Build Soju from source
+FROM golang:1.21-alpine AS soju-builder
+
+# Install build dependencies for Soju
+RUN apk add --no-cache git build-base sqlite-dev
+
+# Set Soju version
+ENV SOJU_VERSION=v0.8.0
+
+# Download and build Soju
+RUN git clone https://codeberg.org/emersion/soju.git /src && \
+    cd /src && \
+    git checkout $SOJU_VERSION && \
+    go build -ldflags "-s -w" -o soju ./cmd/soju && \
+    go build -ldflags "-s -w" -o sojuctl ./cmd/sojuctl && \
+    go build -ldflags "-s -w" -o sojudb ./cmd/sojudb
+
+# Stage 2: Build Sidecar TypeScript code
+FROM node:20-alpine AS sidecar-builder
+
+WORKDIR /app
+
+# Copy sidecar package files (from parent directory)
+COPY ../curia-irc-bouncer-sidecar/package.json ../curia-irc-bouncer-sidecar/yarn.lock ./
+COPY ../curia-irc-bouncer-sidecar/tsconfig.json ./
+
+# Install dependencies and build
+RUN yarn install --production=false
+
+# Copy sidecar source code
+COPY ../curia-irc-bouncer-sidecar/src/ ./src/
+
+# Build TypeScript
+RUN yarn build
+
+# Stage 3: Production image with both services
+FROM node:20-alpine AS production
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    sqlite \
+    postgresql-client \
+    envsubst \
+    openssl \
+    supervisor \
+    tini
+
+# Create soju user and directories (use different GID since 1000 exists in node image)
+RUN addgroup -g 1001 soju && \
+    adduser -D -s /bin/sh -u 1001 -G soju soju && \
+    mkdir -p /etc/soju /var/lib/soju /etc/soju/certs && \
+    chown -R soju:soju /etc/soju /var/lib/soju
+
+# Copy Soju binaries from build stage
+COPY --from=soju-builder /src/soju /usr/bin/soju
+COPY --from=soju-builder /src/sojuctl /usr/bin/sojuctl
+COPY --from=soju-builder /src/sojudb /usr/bin/sojudb
+
+# Copy Soju configuration files
+COPY curia-irc-bouncer/soju.conf /etc/soju/soju.conf
+COPY curia-irc-bouncer/init-user.sh /usr/bin/init-user.sh
+
+# Copy sidecar application
+WORKDIR /app
+COPY --from=sidecar-builder /app/dist ./dist
+COPY --from=sidecar-builder /app/node_modules ./node_modules
+COPY --from=sidecar-builder /app/package.json ./
+COPY --from=sidecar-builder /app/yarn.lock ./
+
+# Create supervisord configuration
+COPY curia-irc-bouncer/supervisord.conf /etc/supervisord.conf
+
+# Copy unified entrypoint
+COPY curia-irc-bouncer/entrypoint.unified.sh /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/init-user.sh /usr/bin/entrypoint.sh
+
+# Expose ports (IRC + HTTP API)
+EXPOSE 6667 6697 443 8080 3000
+
+# Use tini as init system for proper signal handling
+ENTRYPOINT ["tini", "--"]
+
+# Start supervisord to manage both processes
+CMD ["/usr/bin/entrypoint.sh"]
